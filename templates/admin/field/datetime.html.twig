@@ -1,0 +1,10 @@
+{% if field.value %}
+    {% if field.value is instanceof('DateTime') or field.value is instanceof('DateTimeInterface') %}
+        {{ field.value|date('d/m/Y H:i') }}
+    {% else %}
+        {{ field.value }}
+    {% endif %}
+{% else %}
+    -
+{% endif %}
+

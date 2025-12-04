@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Commandes{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .orders-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+    }
+
+    .order-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="orders-header">
+    <h1><i class="bi bi-receipt"></i> Mes Commandes</h1>
+    <p class="mb-0">Consultez l'historique de vos achats</p>
+</div>
+
+{% if orders is empty %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 5rem; color: #9ca3af;"></i>
+        <h3 class="mt-3">Aucune commande</h3>
+        <p class="text-muted mb-4">Vous n'avez pas encore passé de commande</p>
+        <a href="{{ path('home') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-left"></i> Commencer les achats
+        </a>
+    </div>
+{% else %}
+    <div class="row">
+        {% for order in orders %}
+            <div class="col-12 mb-3">
+                <div class="order-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <i class="bi bi-receipt-cutoff" style="font-size: 3rem; color: var(--primary-color);"></i>
+                                <div class="mt-2"><strong>#{{ order.id }}</strong></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <strong><i class="bi bi-calendar"></i> Date:</strong><br>
+                            {{ order.dateCommande|date('d/m/Y H:i') }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong><i class="bi bi-currency-euro"></i> Montant:</strong><br>
+                            <span style="font-size: 1.2rem; color: var(--primary-color); font-weight: 700;">{{ order.montantTotal|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong><i class="bi bi-info-circle"></i> Statut:</strong><br>
+                            {% if order.statut == 'pending' %}
+                                <span class="status-badge bg-warning text-dark">En attente</span>
+                            {% elseif order.statut == 'paid' %}
+                                <span class="status-badge bg-success text-white">Payée</span>
+                            {% elseif order.statut == 'shipped' %}
+                                <span class="status-badge bg-info text-white">Expédiée</span>
+                            {% elseif order.statut == 'delivered' %}
+                                <span class="status-badge bg-primary text-white">Livrée</span>
+                            {% else %}
+                                <span class="status-badge bg-secondary text-white">{{ order.statut }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <a href="{{ path('order_show', {id: order.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-eye"></i> Voir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

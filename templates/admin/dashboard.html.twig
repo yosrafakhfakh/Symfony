@@ -1,0 +1,229 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Tableau de bord{% endblock %}
+
+{% block main %}
+<div class="dashboard-content">
+    <!-- Message de bienvenue -->
+    <div class="welcome-section mb-4">
+        <h2 class="mb-2">Bienvenue sur votre Bibliothèque</h2>
+        <p class="text-muted">Gestion complète de vos ressources bibliothécaires</p>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">TOTAL LIVRES</h5>
+                            <h2 class="mb-0">{{ stats.totalBooks }}</h2>
+                            <small>Ouvrages en base</small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fa fa-book"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">AUTEURS</h5>
+                            <h2 class="mb-0">{{ stats.totalAuthors }}</h2>
+                            <small>Écrivains référencés</small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fa fa-pen"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">ÉDITEURS</h5>
+                            <h2 class="mb-0">{{ stats.totalPublishers }}</h2>
+                            <small>Maisons d'édition</small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fa fa-building"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">CATÉGORIES</h5>
+                            <h2 class="mb-0">{{ stats.totalCategories }}</h2>
+                            <small>Classifications</small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fa fa-tags"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Autres statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Commandes</h5>
+                    <h3>{{ stats.totalOrders }}</h3>
+                    <p class="text-muted mb-0">
+                        <span class="badge bg-warning">{{ stats.pendingOrders }} en attente</span>
+                        <span class="badge bg-success">{{ stats.paidOrders }} payées</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Utilisateurs</h5>
+                    <h3>{{ stats.totalUsers }}</h3>
+                    <p class="text-muted mb-0">Comptes enregistrés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Stock total</h5>
+                    <h3>{{ stats.totalStock }}</h3>
+                    <p class="text-muted mb-0">Exemplaires disponibles</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et données -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Distribution par Catégorie</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Livres récents</h5>
+                </div>
+                <div class="card-body">
+                    {% if recentBooks is empty %}
+                        <p class="text-muted">Aucun livre enregistré</p>
+                    {% else %}
+                        <div class="list-group">
+                            {% for book in recentBooks %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ book.titre }}</h6>
+                                        <small>{{ book.prix }} €</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        <small class="text-muted">
+                                            {{ book.author }} • {{ book.category }}
+                                        </small>
+                                    </p>
+                                    <small>Stock: {{ book.quantite }} exemplaires</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Graphique de distribution par catégorie
+    const categoryData = {{ categoryStats|json_encode|raw }};
+    
+    if (categoryData.length > 0) {
+        const ctx = document.getElementById('categoryChart');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categoryData.map(item => item.name),
+                datasets: [{
+                    label: 'Nombre de livres',
+                    data: categoryData.map(item => item.count),
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444',
+                        '#8b5cf6',
+                        '#ec4899',
+                        '#06b6d4',
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+<style>
+    .dashboard-content {
+        padding: 20px;
+    }
+    .welcome-section h2 {
+        font-size: 2rem;
+        font-weight: 600;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .card-body h2, .card-body h3 {
+        font-weight: 700;
+    }
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+    }
+    .list-group-item:first-child {
+        border-top: none;
+    }
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande #{{ order.id }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .order-detail-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="order-detail-header">
+    <h1><i class="bi bi-receipt"></i> Commande #{{ order.id }}</h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="detail-card">
+            <h4 class="mb-4"><i class="bi bi-list-ul"></i> Articles commandés</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Livre</th>
+                        <th class="text-center">Quantité</th>
+                        <th class="text-end">Prix unitaire</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.orderItems %}
+                        <tr>
+                            <td>{{ item.book.titre }}</td>
+                            <td class="text-center">{{ item.quantite }}</td>
+                            <td class="text-end">{{ item.prix }} €</td>
+                            <td class="text-end"><strong>{{ (item.prix * item.quantite)|number_format(2, ',', ' ') }} €</strong></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Total:</th>
+                        <th class="text-end" style="font-size: 1.5rem; color: var(--primary-color);">{{ order.montantTotal|number_format(2, ',', ' ') }} €</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="detail-card">
+            <h4 class="mb-4"><i class="bi bi-info-circle"></i> Informations</h4>
+            <div class="mb-3">
+                <strong><i class="bi bi-calendar"></i> Date de commande:</strong><br>
+                {{ order.dateCommande|date('d/m/Y H:i') }}
+            </div>
+            {% if order.dateModification %}
+                <div class="mb-3">
+                    <strong><i class="bi bi-clock-history"></i> Dernière modification:</strong><br>
+                    {{ order.dateModification|date('d/m/Y H:i') }}
+                </div>
+            {% endif %}
+            <div class="mb-3">
+                <strong><i class="bi bi-info-circle"></i> Statut:</strong><br>
+                {% if order.statut == 'pending' %}
+                    <span class="badge bg-warning" style="font-size: 1rem; padding: 0.5rem 1rem;">En attente</span>
+                {% elseif order.statut == 'paid' %}
+                    <span class="badge bg-success" style="font-size: 1rem; padding: 0.5rem 1rem;">Payée</span>
+                {% elseif order.statut == 'shipped' %}
+                    <span class="badge bg-info" style="font-size: 1rem; padding: 0.5rem 1rem;">Expédiée</span>
+                {% elseif order.statut == 'delivered' %}
+                    <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">Livrée</span>
+                {% else %}
+                    <span class="badge bg-secondary" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ order.statut }}</span>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <strong><i class="bi bi-currency-euro"></i> Montant total:</strong><br>
+                <span style="font-size: 1.5rem; color: var(--primary-color); font-weight: 700;">{{ order.montantTotal|number_format(2, ',', ' ') }} €</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ path('order_history') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Retour à mes commandes
+    </a>
+    {% if order.statut == 'pending' %}
+        <form method="post" action="{{ path('order_payment', {id: order.id}) }}" class="d-inline ms-2">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-credit-card"></i> Effectuer le paiement
+            </button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .register-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .register-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .register-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .register-header h3 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .register-body {
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="register-container">
+    <div class="register-card fade-in">
+        <div class="register-header">
+            <h3><i class="bi bi-person-plus"></i> Inscription</h3>
+        </div>
+        <div class="register-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label">
+                        <i class="bi bi-envelope"></i> Email
+                    </label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock"></i> Mot de passe
+                    </label>
+                    <input type="password" name="password" id="password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nom" class="form-label">
+                        <i class="bi bi-person"></i> Nom
+                    </label>
+                    <input type="text" name="nom" id="nom" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="prenom" class="form-label">
+                        <i class="bi bi-person"></i> Prénom
+                    </label>
+                    <input type="text" name="prenom" id="prenom" class="form-control" required>
+                </div>
+
+                <button class="btn btn-primary w-100 mb-3" type="submit">
+                    <i class="bi bi-person-plus"></i> S'inscrire
+                </button>
+            </form>
+
+            <div class="text-center">
+                <p class="text-muted mb-0">Déjà un compte ?</p>
+                <a href="{{ path('login') }}" class="btn btn-outline-primary w-100 mt-2">
+                    <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
